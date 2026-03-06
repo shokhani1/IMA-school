@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="uz" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NOVA Jamoasi - Maktab Fikr-Mulohaza Portali</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(148, 163, 184, 0.1);
+    }
+    
+    .glass-input {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    }
+    
+    .glow-effect {
+      box-shadow: 0 0 40px rgba(99, 102, 241, 0.3);
+    }
+    
+    .toast-enter {
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    .toast-exit {
+      animation: slideOut 0.3s ease-in forwards;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    .reaction-btn:hover {
+      transform: scale(1.2);
+    }
+    
+    .reaction-btn.active {
+      transform: scale(1.1);
+      background: rgba(99, 102, 241, 0.3);
+    }
+    
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.5);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.5);
+      border-radius: 4px;
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full gradient-bg text-slate-100 overflow-auto">
+  <div id="app" class="min-h-full w-full"><!-- Toast Container -->
+   <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div><!-- Login Modal -->
+   <div id="login-modal" class="fixed inset-0 z-40 hidden items-center justify-center p-4" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);">
+    <div class="glass-card rounded-2xl p-8 w-full max-w-md fade-in">
+     <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-white">🔐 Admin Kirish</h2><button onclick="closeLoginModal()" class="text-slate-400 hover:text-white transition-colors text-2xl">×</button>
+     </div>
+     <div class="space-y-4">
+      <div><label class="block text-sm font-medium text-slate-300 mb-2">Foydalanuvchi nomi</label> <input type="text" id="admin-username" placeholder="admin1" class="glass-input w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+      </div>
+      <div><label class="block text-sm font-medium text-slate-300 mb-2">Parol</label> <input type="password" id="admin-password" placeholder="••••••••" class="glass-input w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+      </div><button onclick="loginAdmin()" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold transition-all transform hover:scale-[1.02] mt-4"> Kirish </button>
+     </div>
+    </div>
+   </div><!-- Reply Modal -->
+   <div id="reply-modal" class="fixed inset-0 z-40 hidden items-center justify-center p-4" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);">
+    <div class="glass-card rounded-2xl p-8 w-full max-w-lg fade-in">
+     <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-white">💬 Javob Yozish</h2><button onclick="closeReplyModal()" class="text-slate-400 hover:text-white transition-colors text-2xl">×</button>
+     </div>
+     <div class="space-y-4">
+      <div id="reply-feedback-preview" class="glass-input p-4 rounded-xl text-slate-300 text-sm"></div>
+      <div><label class="block text-sm font-medium text-slate-300 mb-2">Javobingiz</label> <textarea id="reply-text" rows="4" placeholder="Javobingizni yozing..." class="glass-input w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all resize-none"></textarea>
+      </div><button onclick="submitReply()" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded-xl font-semibold transition-all transform hover:scale-[1.02]"> Javob Yuborish </button>
+     </div>
+    </div>
+   </div><!-- Header -->
+   <header class="sticky top-0 z-30 glass-card border-b border-slate-700/50">
+    <div class="max-w-7xl mx-auto px-4 py-4">
+     <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+       <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-2xl glow-effect">
+        🎓
+       </div>
+       <div>
+        <h1 id="portal-title" class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">NOVA Jamoasi</h1>
+        <p id="portal-subtitle" class="text-xs sm:text-sm text-slate-400">Maktab Fikr-Mulohaza Portali</p>
+       </div>
+      </div>
+      <div class="flex items-center gap-3">
+       <div id="admin-info" class="hidden items-center gap-2 px-4 py-2 glass-card rounded-xl"><span class="text-emerald-400">👤</span> <span id="admin-name" class="text-sm font-medium"></span>
+       </div><button id="admin-btn" onclick="showLoginModal()" class="px-4 py-2 glass-card rounded-xl hover:bg-slate-700/50 transition-all flex items-center gap-2"> <span>🔑</span> <span class="hidden sm:inline">Admin</span> </button> <button id="logout-btn" onclick="logoutAdmin()" class="hidden px-4 py-2 bg-red-600/20 border border-red-500/30 rounded-xl hover:bg-red-600/30 transition-all flex items-center gap-2 text-red-400"> <span>🚪</span> <span class="hidden sm:inline">Chiqish</span> </button>
+      </div>
+     </div>
+    </div>
+   </header><!-- Main Content -->
+   <main class="max-w-7xl mx-auto px-4 py-8"><!-- Admin Stats (Hidden by default) -->
+    <div id="admin-stats" class="hidden mb-8 fade-in">
+     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="glass-card rounded-xl p-4 text-center">
+       <div class="text-3xl mb-2">
+        📊
+       </div>
+       <div id="stat-total" class="text-2xl font-bold text-indigo-400">
+        0
+       </div>
+       <div class="text-sm text-slate-400">
+        Jami Fikrlar
+       </div>
+      </div>
+      <div class="glass-card rounded-xl p-4 text-center">
+       <div class="text-3xl mb-2">
+        📌
+       </div>
+       <div id="stat-pinned" class="text-2xl font-bold text-amber-400">
+        0
+       </div>
+       <div class="text-sm text-slate-400">
+        Muhim Fikrlar
+       </div>
+      </div>
+      <div class="glass-card rounded-xl p-4 text-center">
+       <div class="text-3xl mb-2">
+        💬
+       </div>
+       <div id="stat-replies" class="text-2xl font-bold text-emerald-400">
+        0
+       </div>
+       <div class="text-sm text-slate-400">
+        Javoblar
+       </div>
+      </div>
+      <div class="glass-card rounded-xl p-4 text-center">
+       <div class="text-3xl mb-2">
+        ❤️
+       </div>
+       <div id="stat-reactions" class="text-2xl font-bold text-pink-400">
+        0
+       </div>
+       <div class="text-sm text-slate-400">
+        Reaksiyalar
+       </div>
+      </div>
+     </div>
+    </div>
+    <div class="grid lg:grid-cols-3 gap-8"><!-- Feedback Form -->
+     <div class="lg:col-span-1">
+      <div class="glass-card rounded-2xl p-6 sticky top-28">
+       <h2 class="text-xl font-bold mb-6 flex items-center gap-2"><span class="text-2xl">✍️</span> Fikr Bildirish</h2>
+       <form id="feedback-form" class="space-y-4">
+        <div><label class="block text-sm font-medium text-slate-300 mb-2">Ismingiz (ixtiyoriy)</label> <input type="text" id="author-name" placeholder="Ismingizni kiriting..." class="glass-input w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+        </div>
+        <div><label class="block text-sm font-medium text-slate-300 mb-2">Sinf <span class="text-red-400">*</span></label> <select id="grade-select" required class="glass-input w-full px-4 py-3 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer"> <option value="" class="bg-slate-800">Sinfingizni tanlang</option> <option value="5A1" class="bg-slate-800">5A1</option> <option value="5A2" class="bg-slate-800">5A2</option> <option value="6A1" class="bg-slate-800">6A1</option> <option value="6A2" class="bg-slate-800">6A2</option> <option value="7A1" class="bg-slate-800">7A1</option> <option value="7A2" class="bg-slate-800">7A2</option> <option value="7T" class="bg-slate-800">7T</option> <option value="8A1" class="bg-slate-800">8A1</option> <option value="8A2" class="bg-slate-800">8A2</option> <option value="8T" class="bg-slate-800">8T</option> <option value="9A1" class="bg-slate-800">9A1</option> <option value="9A2" class="bg-slate-800">9A2</option> <option value="9T" class="bg-slate-800">9T</option> <option value="10A1" class="bg-slate-800">10A1</option> <option value="10A2  " class="bg-slate-800">10A2</option><option value="10T" class="bg-slate-800">10T</option></select>
+        </div>
+        <div><label class="block text-sm font-medium text-slate-300 mb-2">Fikringiz <span class="text-red-400">*</span></label> <textarea id="feedback-message" rows="4" required placeholder="Fikringizni yozing..." class="glass-input w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all resize-none"></textarea>
+        </div><button type="submit" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2"> <span>🚀</span> Fikr Yuborish </button>
+       </form>
+      </div>
+     </div><!-- Feedback List -->
+     <div class="lg:col-span-2">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+       <h2 class="text-xl font-bold flex items-center gap-2"><span class="text-2xl">💭</span> Barcha Fikrlar</h2>
+       <div class="w-full sm:w-auto"><input type="text" id="search-input" placeholder="🔍 Fikrlarni qidirish..." oninput="searchFeedback()" class="glass-input w-full sm:w-64 px-4 py-2 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+       </div>
+      </div>
+      <div id="feedback-list" class="space-y-4"><!-- Feedback cards will be rendered here -->
+      </div>
+      <div id="empty-state" class="hidden glass-card rounded-2xl p-12 text-center">
+       <div class="text-6xl mb-4">
+        📭
+       </div>
+       <h3 class="text-xl font-bold text-slate-300 mb-2">Hozircha fikrlar yo'q</h3>
+       <p class="text-slate-400">Birinchi bo'lib fikringizni bildiring!</p>
+      </div>
+     </div>
+    </div>
+   </main><!-- Footer -->
+   <footer class="glass-card border-t border-slate-700/50 mt-8">
+    <div class="max-w-7xl mx-auto px-4 py-6 text-center">
+     <p class="text-slate-400 text-sm">© 2024 NOVA Jamoasi. Barcha huquqlar himoyalangan.</p>
+    </div>
+   </footer>
+  </div>
+  <script>
+    // Default configuration
+    const defaultConfig = {
+      portal_title: 'NOVA Jamoasi',
+      subtitle_text: 'Maktab Fikr-Mulohaza Portali',
+      background_color: '#0f172a',
+      card_color: '#1e293b',
+      text_color: '#f1f5f9',
+      primary_color: '#6366f1',
+      accent_color: '#a855f7'
+    };
+
+    // Config object
+    let config = { ...defaultConfig };
+
+    // Initialize Element SDK
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (newConfig) => {
+          config = { ...defaultConfig, ...newConfig };
+          applyConfig();
+        },
+        mapToCapabilities: (cfg) => ({
+          recolorables: [
+            {
+              get: () => cfg.background_color || defaultConfig.background_color,
+              set: (value) => { cfg.background_color = value; window.elementSdk.setConfig({ background_color: value }); }
+            },
+            {
+              get: () => cfg.card_color || defaultConfig.card_color,
+              set: (value) => { cfg.card_color = value; window.elementSdk.setConfig({ card_color: value }); }
+            },
+            {
+              get: () => cfg.text_color || defaultConfig.text_color,
+              set: (value) => { cfg.text_color = value; window.elementSdk.setConfig({ text_color: value }); }
+            },
+            {
+              get: () => cfg.primary_color || defaultConfig.primary_color,
+              set: (value) => { cfg.primary_color = value; window.elementSdk.setConfig({ primary_color: value }); }
+            },
+            {
+              get: () => cfg.accent_color || defaultConfig.accent_color,
+              set: (value) => { cfg.accent_color = value; window.elementSdk.setConfig({ accent_color: value }); }
+            }
+          ],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (cfg) => new Map([
+          ['portal_title', cfg.portal_title || defaultConfig.portal_title],
+          ['subtitle_text', cfg.subtitle_text || defaultConfig.subtitle_text]
+        ])
+      });
+    }
+
+    function applyConfig() {
+      document.getElementById('portal-title').textContent = config.portal_title || defaultConfig.portal_title;
+      document.getElementById('portal-subtitle').textContent = config.subtitle_text || defaultConfig.subtitle_text;
+    }
+
+    // Data storage
+    let allFeedback = [];
+    let currentAdmin = null;
+    let currentReplyId = null;
+    let userReactions = {};
+
+    // Admin accounts
+    const adminAccounts = ['admin1', 'admin2', 'admin3', 'admin4', 'admin5'];
+    const adminPassword = 'admin123';
+
+    // Initialize app
+    function init() {
+      loadFromStorage();
+      renderFeedback();
+      applyConfig();
+    }
+
+    // Storage functions
+    function loadFromStorage() {
+      const stored = localStorage.getItem('nova_feedback');
+      if (stored) {
+        allFeedback = JSON.parse(stored);
+      }
+      const reactions = localStorage.getItem('nova_reactions');
+      if (reactions) {
+        userReactions = JSON.parse(reactions);
+      }
+    }
+
+    function saveToStorage() {
+      localStorage.setItem('nova_feedback', JSON.stringify(allFeedback));
+      localStorage.setItem('nova_reactions', JSON.stringify(userReactions));
+    }
+
+    // Toast notification
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const bgColor = type === 'success' ? 'from-emerald-600 to-teal-600' : 
+                      type === 'error' ? 'from-red-600 to-rose-600' : 
+                      'from-indigo-600 to-purple-600';
+      
+      toast.className = `toast-enter glass-card bg-gradient-to-r ${bgColor} px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 min-w-[280px]`;
+      
+      const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+      toast.innerHTML = `<span class="text-xl">${icon}</span><span class="font-medium">${message}</span>`;
+      
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.classList.remove('toast-enter');
+        toast.classList.add('toast-exit');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Generate unique ID
+    function generateId() {
+      return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    // Format timestamp
+    function formatTimestamp(date) {
+      const d = new Date(date);
+      const now = new Date();
+      const diff = now - d;
+      
+      if (diff < 60000) return 'Hozirgina';
+      if (diff < 3600000) return `${Math.floor(diff / 60000)} daqiqa oldin`;
+      if (diff < 86400000) return `${Math.floor(diff / 3600000)} soat oldin`;
+      
+      return d.toLocaleDateString('uz-UZ', { 
+        day: 'numeric', 
+        month: 'long', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    }
+
+    // Submit feedback
+    function submitFeedback(e) {
+      e.preventDefault();
+      
+      const author = document.getElementById('author-name').value.trim() || 'Anonim';
+      const grade = document.getElementById('grade-select').value;
+      const message = document.getElementById('feedback-message').value.trim();
+      
+      if (!grade) {
+        showToast('Iltimos, sinfingizni tanlang!', 'error');
+        return;
+      }
+      
+      if (!message) {
+        showToast('Iltimos, fikringizni yozing!', 'error');
+        return;
+      }
+      
+      const feedback = {
+        id: generateId(),
+        author: author,
+        grade: grade,
+        message: message,
+        timestamp: new Date().toISOString(),
+        replies: [],
+        reactions: {
+          like: 0,
+          heart: 0,
+          fire: 0,
+          laugh: 0
+        },
+        pinned: false
+      };
+      
+      allFeedback.unshift(feedback);
+      saveToStorage();
+      renderFeedback();
+      
+      // Clear form
+      document.getElementById('feedback-form').reset();
+      
+      showToast('Fikringiz muvaffaqiyatli yuborildi! 🎉');
+    }
+
+    // Render feedback
+    function renderFeedback(feedbackToRender = null) {
+      const list = document.getElementById('feedback-list');
+      const emptyState = document.getElementById('empty-state');
+      const data = feedbackToRender || allFeedback;
+      
+      // Sort: pinned first, then by timestamp
+      const sorted = [...data].sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        return new Date(b.timestamp) - new Date(a.timestamp);
+      });
+      
+      if (sorted.length === 0) {
+        list.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      
+      emptyState.classList.add('hidden');
+      list.innerHTML = sorted.map(fb => createFeedbackCard(fb)).join('');
+      
+      updateStats();
+    }
+
+    // Create feedback card
+    function createFeedbackCard(fb) {
+      const userReaction = userReactions[fb.id];
+      const isAdmin = currentAdmin !== null;
+      
+      const reactionButtons = ['like', 'heart', 'fire', 'laugh'].map(type => {
+        const emoji = type === 'like' ? '👍' : type === 'heart' ? '❤️' : type === 'fire' ? '🔥' : '😂';
+        const isActive = userReaction === type;
+        return `
+          <button onclick="reactToFeedback('${fb.id}', '${type}')" 
+                  class="reaction-btn px-3 py-1.5 rounded-lg glass-input hover:bg-slate-600/50 transition-all flex items-center gap-1.5 ${isActive ? 'active ring-2 ring-indigo-500' : ''}">
+            <span>${emoji}</span>
+            <span class="text-sm font-medium">${fb.reactions[type]}</span>
+          </button>
+        `;
+      }).join('');
+      
+      const adminControls = isAdmin ? `
+        <div class="flex gap-2 mt-4 pt-4 border-t border-slate-700/50">
+          <button onclick="openReplyModal('${fb.id}')" class="flex-1 py-2 glass-input rounded-lg hover:bg-emerald-600/20 hover:border-emerald-500/30 transition-all flex items-center justify-center gap-2 text-emerald-400">
+            <span>💬</span> Javob
+          </button>
+          <button onclick="pinFeedback('${fb.id}')" class="flex-1 py-2 glass-input rounded-lg hover:bg-amber-600/20 hover:border-amber-500/30 transition-all flex items-center justify-center gap-2 ${fb.pinned ? 'text-amber-400' : 'text-slate-400'}">
+            <span>📌</span> ${fb.pinned ? 'Olib tashlash' : 'Muhim'}
+          </button>
+          <button onclick="deleteFeedback('${fb.id}')" class="flex-1 py-2 glass-input rounded-lg hover:bg-red-600/20 hover:border-red-500/30 transition-all flex items-center justify-center gap-2 text-red-400">
+            <span>🗑️</span> O'chirish
+          </button>
+        </div>
+      ` : '';
+      
+      const replies = fb.replies.length > 0 ? `
+        <div class="mt-4 space-y-3">
+          <div class="text-sm font-medium text-slate-400 flex items-center gap-2">
+            <span>💬</span> Admin javoblari (${fb.replies.length})
+          </div>
+          ${fb.replies.map(reply => `
+            <div class="glass-input rounded-xl p-4 border-l-4 border-emerald-500">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="px-2 py-0.5 bg-emerald-600/30 rounded-md text-emerald-400 text-xs font-medium">Admin</span>
+                <span class="text-slate-400 text-xs">${formatTimestamp(reply.timestamp)}</span>
+              </div>
+              <p class="text-slate-200">${reply.message}</p>
+            </div>
+          `).join('')}
+        </div>
+      ` : '';
+      
+      return `
+        <div class="glass-card rounded-2xl p-6 fade-in ${fb.pinned ? 'ring-2 ring-amber-500/50' : ''}">
+          ${fb.pinned ? '<div class="flex items-center gap-2 text-amber-400 text-sm mb-3"><span>📌</span> Muhim xabar</div>' : ''}
+          <div class="flex flex-wrap items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold">
+              ${fb.author.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <div class="font-semibold text-white">${fb.author}</div>
+              <div class="flex items-center gap-2 text-sm">
+                <span class="px-2 py-0.5 bg-indigo-600/30 rounded-md text-indigo-400">${fb.grade}</span>
+                <span class="text-slate-500">•</span>
+                <span class="text-slate-400">${formatTimestamp(fb.timestamp)}</span>
+              </div>
+            </div>
+          </div>
+          <p class="text-slate-200 leading-relaxed mb-4">${fb.message}</p>
+          <div class="flex flex-wrap gap-2">
+            ${reactionButtons}
+          </div>
+          ${replies}
+          ${adminControls}
+        </div>
+      `;
+    }
+
+    // React to feedback
+    function reactToFeedback(feedbackId, reactionType) {
+      const fb = allFeedback.find(f => f.id === feedbackId);
+      if (!fb) return;
+      
+      const currentReaction = userReactions[feedbackId];
+      
+      if (currentReaction === reactionType) {
+        // Remove reaction
+        fb.reactions[reactionType]--;
+        delete userReactions[feedbackId];
+      } else {
+        // Remove old reaction if exists
+        if (currentReaction) {
+          fb.reactions[currentReaction]--;
+        }
+        // Add new reaction
+        fb.reactions[reactionType]++;
+        userReactions[feedbackId] = reactionType;
+      }
+      
+      saveToStorage();
+      renderFeedback();
+    }
+
+    // Admin functions
+    function showLoginModal() {
+      document.getElementById('login-modal').classList.remove('hidden');
+      document.getElementById('login-modal').classList.add('flex');
+      document.getElementById('admin-username').value = '';
+      document.getElementById('admin-password').value = '';
+    }
+
+    function closeLoginModal() {
+      document.getElementById('login-modal').classList.add('hidden');
+      document.getElementById('login-modal').classList.remove('flex');
+    }
+
+    function loginAdmin() {
+      const username = document.getElementById('admin-username').value.trim();
+      const password = document.getElementById('admin-password').value;
+      
+      if (adminAccounts.includes(username) && password === adminPassword) {
+        currentAdmin = username;
+        closeLoginModal();
+        updateAdminUI();
+        showToast(`Xush kelibsiz, ${username}! 👋`, 'info');
+        renderFeedback();
+      } else {
+        showToast('Noto\'g\'ri foydalanuvchi nomi yoki parol!', 'error');
+      }
+    }
+
+    function logoutAdmin() {
+      currentAdmin = null;
+      updateAdminUI();
+      showToast('Muvaffaqiyatli chiqdingiz!', 'info');
+      renderFeedback();
+    }
+
+    function updateAdminUI() {
+      const adminBtn = document.getElementById('admin-btn');
+      const logoutBtn = document.getElementById('logout-btn');
+      const adminInfo = document.getElementById('admin-info');
+      const adminName = document.getElementById('admin-name');
+      const adminStats = document.getElementById('admin-stats');
+      
+      if (currentAdmin) {
+        adminBtn.classList.add('hidden');
+        logoutBtn.classList.remove('hidden');
+        logoutBtn.classList.add('flex');
+        adminInfo.classList.remove('hidden');
+        adminInfo.classList.add('flex');
+        adminName.textContent = currentAdmin;
+        adminStats.classList.remove('hidden');
+      } else {
+        adminBtn.classList.remove('hidden');
+        logoutBtn.classList.add('hidden');
+        logoutBtn.classList.remove('flex');
+        adminInfo.classList.add('hidden');
+        adminInfo.classList.remove('flex');
+        adminStats.classList.add('hidden');
+      }
+    }
+
+    function updateStats() {
+      if (!currentAdmin) return;
+      
+      const total = allFeedback.length;
+      const pinned = allFeedback.filter(f => f.pinned).length;
+      const replies = allFeedback.reduce((sum, f) => sum + f.replies.length, 0);
+      const reactions = allFeedback.reduce((sum, f) => {
+        return sum + Object.values(f.reactions).reduce((a, b) => a + b, 0);
+      }, 0);
+      
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-pinned').textContent = pinned;
+      document.getElementById('stat-replies').textContent = replies;
+      document.getElementById('stat-reactions').textContent = reactions;
+    }
+
+    // Reply functions
+    function openReplyModal(feedbackId) {
+      currentReplyId = feedbackId;
+      const fb = allFeedback.find(f => f.id === feedbackId);
+      if (!fb) return;
+      
+      document.getElementById('reply-feedback-preview').innerHTML = `
+        <div class="font-semibold text-white mb-1">${fb.author} (${fb.grade})</div>
+        <p class="text-slate-400">${fb.message}</p>
+      `;
+      document.getElementById('reply-text').value = '';
+      document.getElementById('reply-modal').classList.remove('hidden');
+      document.getElementById('reply-modal').classList.add('flex');
+    }
+
+    function closeReplyModal() {
+      currentReplyId = null;
+      document.getElementById('reply-modal').classList.add('hidden');
+      document.getElementById('reply-modal').classList.remove('flex');
+    }
+
+    function submitReply() {
+      if (!currentReplyId || !currentAdmin) return;
+      
+      const replyText = document.getElementById('reply-text').value.trim();
+      if (!replyText) {
+        showToast('Iltimos, javob yozing!', 'error');
+        return;
+      }
+      
+      const fb = allFeedback.find(f => f.id === currentReplyId);
+      if (!fb) return;
+      
+      fb.replies.push({
+        admin: currentAdmin,
+        message: replyText,
+        timestamp: new Date().toISOString()
+      });
+      
+      saveToStorage();
+      closeReplyModal();
+      renderFeedback();
+      showToast('Javob muvaffaqiyatli yuborildi! ✅');
+    }
+
+    function replyToFeedback(feedbackId, message) {
+      const fb = allFeedback.find(f => f.id === feedbackId);
+      if (!fb || !currentAdmin) return;
+      
+      fb.replies.push({
+        admin: currentAdmin,
+        message: message,
+        timestamp: new Date().toISOString()
+      });
+      
+      saveToStorage();
+      renderFeedback();
+    }
+
+    // Delete feedback
+    function deleteFeedback(feedbackId) {
+      if (!currentAdmin) return;
+      
+      const fb = allFeedback.find(f => f.id === feedbackId);
+      if (!fb) return;
+      
+      // Create inline confirmation
+      const card = document.querySelector(`[onclick*="${feedbackId}"]`).closest('.glass-card');
+      const adminControls = card.querySelector('.flex.gap-2.mt-4');
+      
+      adminControls.innerHTML = `
+        <div class="w-full text-center">
+          <p class="text-red-400 mb-3">Bu fikrni o'chirishni tasdiqlaysizmi?</p>
+          <div class="flex gap-2 justify-center">
+            <button onclick="confirmDelete('${feedbackId}')" class="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg transition-all">
+              Ha, o'chirish
+            </button>
+            <button onclick="renderFeedback()" class="px-4 py-2 glass-input hover:bg-slate-600/50 rounded-lg transition-all">
+              Bekor qilish
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function confirmDelete(feedbackId) {
+      allFeedback = allFeedback.filter(f => f.id !== feedbackId);
+      delete userReactions[feedbackId];
+      saveToStorage();
+      renderFeedback();
+      showToast('Fikr muvaffaqiyatli o\'chirildi! 🗑️');
+    }
+
+    // Pin feedback
+    function pinFeedback(feedbackId) {
+      if (!currentAdmin) return;
+      
+      const fb = allFeedback.find(f => f.id === feedbackId);
+      if (!fb) return;
+      
+      fb.pinned = !fb.pinned;
+      saveToStorage();
+      renderFeedback();
+      
+      if (fb.pinned) {
+        showToast('Fikr muhim deb belgilandi! 📌');
+      } else {
+        showToast('Muhim belgisi olib tashlandi!');
+      }
+    }
+
+    // Search feedback
+    function searchFeedback() {
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      
+      if (!query) {
+        renderFeedback();
+        return;
+      }
+      
+      const filtered = allFeedback.filter(fb => 
+        fb.author.toLowerCase().includes(query) ||
+        fb.grade.toLowerCase().includes(query) ||
+        fb.message.toLowerCase().includes(query)
+      );
+      
+      renderFeedback(filtered);
+    }
+
+    // Event listeners
+    document.getElementById('feedback-form').addEventListener('submit', submitFeedback);
+
+    // Handle Enter key in login modal
+    document.getElementById('admin-password').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        loginAdmin();
+      }
+    });
+
+    document.getElementById('admin-username').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('admin-password').focus();
+      }
+    });
+
+    // Initialize app
+    init();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9d7f78a4c17ddbfc',t:'MTc3Mjc4MDI5OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
